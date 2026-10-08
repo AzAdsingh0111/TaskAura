@@ -336,3 +336,36 @@ body[data-theme="light"] .workspace-switcher, body[data-theme="system"] .workspa
   .nav button, .sidebar-bottom button, .nav-icon { transition: none; }
   .nav button:hover, .sidebar-bottom button:hover, .nav button.active { transform: none; }
 }
+
+/* Keep the reference sidebar's icon-and-label navigation available on narrow screens. */
+@media (max-width: 720px) {
+  .sidebar {
+    width: 240px;
+    min-width: 240px;
+    padding: 24px 15px 18px;
+  }
+  .brand span,
+  .workspace-switcher,
+  .nav-label,
+  .nav button span,
+  .level-card,
+  .sidebar-bottom,
+  .profile > div {
+    display: initial;
+  }
+  .workspace-switcher {
+    display: flex;
+  }
+  .brand {
+    margin: 0 5px 24px;
+  }
+  .nav button {
+    justify-content: flex-start;
+  }
+  .nav {
+    padding: 10px;
+  }
+  .topbar {
+    padding: 0 14px;
+  }
+}
