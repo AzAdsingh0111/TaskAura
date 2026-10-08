@@ -25,8 +25,8 @@ Task Aura is a local-first productivity workspace for planning tasks, tracking f
 - CSS3
 - Vanilla JavaScript
 - Node.js built-in `http`, `fs`, `path`, and `crypto` modules
+- PostgreSQL through the `pg` package for hosted persistence
 - No frontend framework
-- No external npm packages are required
 
 ## Project structure
 
@@ -38,6 +38,9 @@ taskAura/
 ├── styles.css   # Layout, responsive styles, themes, animations, and components
 ├── README.md    # Project documentation
 ├── .gitignore   # Local data and environment file exclusions
+├── package.json  # Node.js scripts and production dependencies
+├── render.yaml   # Render web service and PostgreSQL blueprint
+├── .env.example  # Environment variable template
 └── data.json    # Local runtime data (created/updated locally, not committed)
 ```
 
@@ -62,11 +65,20 @@ http://localhost:5173
 
 To stop the server, press `Ctrl+C` in the terminal.
 
+For the hosted-style dependency install and validation commands:
+
+```powershell
+npm install
+npm run check
+npm start
+```
+
 ## Data and privacy
 
 Task Aura is designed as a local prototype.
 
-- Runtime data is stored in `data.json` by the local server.
+- Runtime data is stored in `data.json` when `DATABASE_URL` is not configured.
+- When `DATABASE_URL` is configured, the server creates an `app_state` PostgreSQL table and stores runtime data there.
 - Browser fallback data is stored in localStorage if the API is unavailable.
 - `data.json` is ignored by Git because it can contain personal tasks, profile information, settings, and local runtime data.
 - `.env` files and logs are also ignored.
@@ -100,20 +112,23 @@ The project contains local authentication scaffolding for prototype use. It is n
 
 Google sign-in also requires real OAuth credentials and environment configuration before it can be used.
 
-## Deployment
+## Deploy on Render
 
 Pushing the repository to GitHub stores the source code but does not run the Node.js server.
 
-For the complete application, use a Node-compatible host such as:
+This repository includes [`render.yaml`](./render.yaml) for a Render web service and PostgreSQL database.
 
-- Render
-- Railway
-- Fly.io
-- A VPS or another Node.js hosting provider
+1. Push the repository to GitHub.
+2. In Render, choose **New > Blueprint** and select this repository.
+3. Review the `task-aura` web service and `task-aura-db` PostgreSQL database.
+4. Deploy the blueprint. Render provides `DATABASE_URL` to the web service automatically.
+5. Open the generated Render URL.
+
+The service listens on Render's `PORT` environment variable and binds to `0.0.0.0`, which is required for public hosting. Copy the optional Google variables from [`.env.example`](./.env.example) into Render's environment settings if Google login or Calendar is needed.
 
 GitHub Pages can host only the static frontend. API-backed features such as persistence, authentication, profile updates, workload data, and server-side routes will not work there without a separate backend.
 
-For production deployment, replace the local JSON file with a managed database and configure environment variables through the hosting provider.
+For production deployment, configure environment variables through the hosting provider and use a managed PostgreSQL database. The current app keeps one shared application state record for this prototype; a future multi-user release should migrate collections and accounts into separate user-scoped tables.
 
 ## Git workflow
 

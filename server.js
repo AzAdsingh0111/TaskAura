@@ -4,9 +4,15 @@ const path = require('path');
 const crypto = require('crypto');
 const os = require('os');
 const { execFile } = require('child_process');
+const { Pool } = require('pg');
 
 const root = __dirname;
 const dataPath = path.join(root, 'data.json');
+const databasePool = process.env.DATABASE_URL ? new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.DATABASE_SSL === 'false' ? false : { rejectUnauthorized: false }
+}) : null;
+let persistentData = null;
 const mime = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
@@ -14,38 +20,57 @@ const mime = {
   '.json': 'application/json; charset=utf-8'
 };
 
-function readData() {
-  const defaults = { tasks: [], habits: [], sessions: [], calendar: [], guardRules: [], guardAttempts: [], guardEnabled: true, notes: [], integrations: [], activeTaskId: null, tokens: 0, tokenDate: '', settings: { profileId: `profile-${crypto.randomUUID()}`, profileName: 'Local user', age: '', photo: '', theme: 'dark', muted: false, xp: 0, tokens: 0 }, user: null, xp: 0 };
+function defaultData() {
+  return { tasks: [], habits: [], sessions: [], calendar: [], guardRules: [], guardAttempts: [], guardEnabled: true, notes: [], integrations: [], activeTaskId: null, tokens: 0, tokenDate: '', settings: { profileId: `profile-${crypto.randomUUID()}`, profileName: 'Local user', age: '', photo: '', theme: 'dark', muted: false, xp: 0, tokens: 0 }, user: null, xp: 0 };
+}
+function normalizeData(saved = {}) {
+  const defaults = defaultData();
+  const data = { ...defaults, ...saved, settings: { ...defaults.settings, ...(saved.settings || {}) } };
+  if (!data.settings.profileId) data.settings.profileId = `profile-${crypto.randomUUID()}`;
+  const today = new Date().toISOString().slice(0, 10);
+  if (data.tokenDate !== today) {
+    data.tokens = Number(data.tokens) + 1;
+    data.tokenDate = today;
+  }
+  data.settings.xp = data.xp;
+  data.settings.tokens = data.tokens;
+  if (data.activeTaskId && !data.tasks.some(item => item.id === data.activeTaskId)) data.activeTaskId = null;
+  return data;
+}
+function readFileData() {
   if (!fs.existsSync(dataPath)) {
-    return defaults;
+    return defaultData();
   }
   try {
-    const saved = JSON.parse(fs.readFileSync(dataPath, 'utf8'));
-    const data = { ...defaults, ...saved, settings: { ...defaults.settings, ...(saved.settings || {}) } };
-    if (!data.settings.profileId) data.settings.profileId = `profile-${crypto.randomUUID()}`;
-    const today = new Date().toISOString().slice(0, 10);
-    if (data.tokenDate !== today) {
-      data.tokens = Number(data.tokens) + 1;
-      data.tokenDate = today;
-      writeData(data);
-    }
-    if (data.settings.xp !== data.xp || data.settings.tokens !== data.tokens) {
-      data.settings.xp = data.xp;
-      data.settings.tokens = data.tokens;
-      writeData(data);
-    }
-    if (data.activeTaskId && !data.tasks.some(item => item.id === data.activeTaskId)) {
-      data.activeTaskId = null;
-      writeData(data);
-    }
-    return data;
+    return normalizeData(JSON.parse(fs.readFileSync(dataPath, 'utf8')));
   } catch (error) {
     console.error('Could not read data.json:', error.message);
-    return defaults;
+    return defaultData();
   }
 }
+function readData() {
+  return persistentData || readFileData();
+}
 function writeData(data) {
-  fs.writeFileSync(dataPath, JSON.stringify(data, null, 2));
+  persistentData = normalizeData(data);
+  if (!databasePool) fs.writeFileSync(dataPath, JSON.stringify(persistentData, null, 2));
+  else void databasePool.query('UPDATE app_state SET data = $1, updated_at = NOW() WHERE id = 1', [persistentData]).catch(error => console.error('Could not persist database data:', error.message));
+}
+async function initializePersistence() {
+  const localData = readFileData();
+  if (!databasePool) {
+    persistentData = localData;
+    writeData(persistentData);
+    return;
+  }
+  await databasePool.query('CREATE TABLE IF NOT EXISTS app_state (id INTEGER PRIMARY KEY, data JSONB NOT NULL, updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW())');
+  const result = await databasePool.query('SELECT data FROM app_state WHERE id = 1');
+  if (result.rows[0]) {
+    persistentData = normalizeData(result.rows[0].data);
+  } else {
+    persistentData = localData;
+    await databasePool.query('INSERT INTO app_state (id, data) VALUES (1, $1)', [persistentData]);
+  }
 }
 function sendJson(response, status, payload) {
   response.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -449,6 +474,11 @@ const server = http.createServer(async (request, response) => {
 });
 
 const port = Number(process.env.PORT) || 5173;
-server.listen(port, '127.0.0.1', () => {
-  console.log(`Task Aura running at http://localhost:${port}`);
+initializePersistence().then(() => {
+  server.listen(port, '0.0.0.0', () => {
+    console.log(`Task Aura running on port ${port}${databasePool ? ' with PostgreSQL persistence' : ' with local JSON persistence'}`);
+  });
+}).catch(error => {
+  console.error('Task Aura could not initialize persistence:', error.message);
+  process.exitCode = 1;
 });

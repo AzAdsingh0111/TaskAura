@@ -1,0 +1,17 @@
+{
+  "name": "task-aura",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local-first productivity workspace with an optional PostgreSQL backend.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node --check server.js && node --check app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "pg": "^8.16.3"
+  }
+}
