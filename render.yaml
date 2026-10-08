@@ -12,6 +12,14 @@ services:
           property: connectionString
       - key: DATABASE_SSL
         value: "true"
+      - key: TASKAURA_GOOGLE_CLIENT_ID
+        sync: false
+      - key: TASKAURA_GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: TASKAURA_GOOGLE_REDIRECT_URI
+        sync: false
+      - key: TASKAURA_GOOGLE_AUTH_REDIRECT_URI
+        sync: false
 
 databases:
   - name: task-aura-db

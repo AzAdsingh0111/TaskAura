@@ -110,7 +110,35 @@ The project contains local authentication scaffolding for prototype use. It is n
 - A real database
 - Multi-user authorization
 
-Google sign-in also requires real OAuth credentials and environment configuration before it can be used.
+Google sign-in and Google Calendar require real Google OAuth credentials and environment configuration before they can be used.
+
+### Configure Google Login and Calendar
+
+1. Open [Google Cloud Console](https://console.cloud.google.com/).
+2. Create or select a project.
+3. Enable the **Google Calendar API**.
+4. Configure the OAuth consent screen with the app name and test users.
+5. Create an OAuth client under **APIs & Services > Credentials**.
+6. Select **Web application** as the application type.
+7. Add these authorized redirect URIs, replacing `<RENDER_URL>` with the deployed Render URL:
+
+   ```text
+   http://localhost:5173/api/auth/google/callback
+   http://localhost:5173/api/integrations/google/callback
+   https://<RENDER_URL>/api/auth/google/callback
+   https://<RENDER_URL>/api/integrations/google/callback
+   ```
+
+8. Add the following values to the Render service environment settings:
+
+   ```text
+   TASKAURA_GOOGLE_CLIENT_ID=your-client-id
+   TASKAURA_GOOGLE_CLIENT_SECRET=your-client-secret
+   TASKAURA_GOOGLE_AUTH_REDIRECT_URI=https://<RENDER_URL>/api/auth/google/callback
+   TASKAURA_GOOGLE_REDIRECT_URI=https://<RENDER_URL>/api/integrations/google/callback
+   ```
+
+Never commit the client secret. The included [`render.yaml`](./render.yaml) marks these values as private settings that Render will request during setup.
 
 ## Deploy on Render
 
