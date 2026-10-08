@@ -164,7 +164,10 @@ function sidebar() {
   const levelXp = Math.max(0, state.data.xp % 300);
   return `<aside class="sidebar">
     <div class="brand"><div class="logo">◉</div><span>Task Aura</span></div>
-    <button class="workspace-switcher">▣ &nbsp; Personal workspace <span>⌄</span></button>
+    <button class="workspace-switcher" type="button" aria-label="Personal workspace">
+      <span class="workspace-identity"><span class="workspace-logo" aria-hidden="true">▰</span><span>Personal workspace</span></span>
+      <span class="workspace-control" aria-hidden="true">↕</span>
+    </button>
     <div class="nav-label">Workspace</div><nav class="nav">${navItems.map(([id, icon, label]) => `<button class="${state.page === id ? 'active' : ''}" data-page="${id}"><i class="nav-icon">${icon}</i><span>${label}</span></button>`).join('')}</nav>
     <div class="level-card"><div class="level-top"><span class="level-badge">◉</span><strong>Level ${level}</strong><small>Momentum</small></div><div class="progress-track"><span class="progress-fill" style="width:${Math.round(levelXp / 3)}%"></span></div><small>${levelXp} / 300 XP to level ${level + 1}</small></div>
     <div class="sidebar-bottom"><button data-page="settings">⚙ &nbsp; Settings</button></div>

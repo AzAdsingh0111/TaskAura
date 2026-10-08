@@ -25,7 +25,10 @@ button { border: 0; color: inherit; cursor: pointer; }
 .sidebar { width: 240px; min-height: 100vh; background: #090e20; border-right: 1px solid var(--line); padding: 24px 15px 18px; display: flex; flex-direction: column; }
 .brand { display: flex; align-items: center; gap: 10px; margin: 0 5px 24px; font-size: 17px; font-weight: 600; font-family: "Segoe UI", Arial, sans-serif; }
 .logo { width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: linear-gradient(145deg, #7d58ff, #3747e7); box-shadow: 0 0 24px #674fff80; font-size: 16px; }
-.workspace-switcher { background: #10162a; border: 1px solid #26304c; border-radius: 8px; padding: 10px 11px; color: #d7daf0; font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 23px; }
+.workspace-switcher { background: #10162a; border: 1px solid #26304c; border-radius: 12px; padding: 10px 11px; color: #d7daf0; font-size: 11px; display: flex; align-items: center; justify-content: space-between; margin-bottom: 23px; text-align: left; }
+.workspace-identity { display: inline-flex; align-items: center; gap: 9px; min-width: 0; font-weight: 700; }
+.workspace-logo { width: 18px; height: 18px; display: grid; place-items: center; flex: 0 0 18px; border-radius: 5px; background: linear-gradient(145deg, #ff79b7, #d92776); color: #fff5fb; font-size: 9px; line-height: 1; box-shadow: 0 3px 10px rgba(255,70,150,.25); }
+.workspace-control { color: #bca7c8; font-size: 16px; line-height: 1; transform: rotate(90deg); }
 .nav-label { color: #64708f; font-size: 9px; text-transform: uppercase; letter-spacing: .08em; margin: 0 6px 8px; }
 .nav { display: grid; gap: 3px; }
 .nav button { background: transparent; padding: 9px 10px; display: flex; align-items: center; gap: 11px; border-radius: 7px; color: #99a4c0; font-size: 12px; text-align: left; }
@@ -198,6 +201,8 @@ body { background: radial-gradient(circle at 70% -10%, #4b2169 0, #1e1033 36rem)
 .brand { color: #fff5fb; }
 .logo { background: linear-gradient(145deg, #ff4696, #d92776); color: #fff5fb; box-shadow: 0 0 24px rgba(255,70,150,.42); }
 .workspace-switcher { background: #281544; border-color: #694487; color: #fff5fb; }
+.workspace-logo { background: linear-gradient(145deg, #ff78b4, #ff4696); color: #fff5fb; box-shadow: 0 3px 12px rgba(255,70,150,.3); }
+.workspace-control { color: #d8b8ce; }
 .nav-label { color: #c499bd; }
 .nav { border-color: #563578; background: rgba(53,28,88,.72); box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
 .nav button { color: #d5b4ce; }
