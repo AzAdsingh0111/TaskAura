@@ -1,8 +1,8 @@
 const navItems = [
-  ['dashboard', '⌂', 'Dashboard'], ['tasks', '✓', 'Tasks'], ['focus', '◷', 'Focus sessions'],
-  ['habits', '↻', 'Habits'], ['analytics', '▥', 'Analytics & Insights'], ['workload', '▱', 'Workload & Apps'],
-  ['guard', '♢', 'Website Guard'], ['coach', '✣', 'AI Coach'], ['progress', '◉', 'Progress'],
-  ['calendar', '▦', 'Calendar'], ['plugins', '⊞', 'Plugins']
+  ['dashboard', 'dashboard', 'Dashboard'], ['tasks', 'tasks', 'Tasks'], ['focus', 'focus', 'Focus sessions'],
+  ['habits', 'habits', 'Habits'], ['analytics', 'analytics', 'Analytics & Insights'], ['workload', 'workload', 'Workload & Apps'],
+  ['guard', 'guard', 'Website Guard'], ['coach', 'coach', 'AI Coach'], ['progress', 'progress', 'Progress'],
+  ['calendar', 'calendar', 'Calendar'], ['plugins', 'plugins', 'Plugins']
 ];
 const storageKey = 'task-aura-local-v1';
 const apiBase = '/api';
@@ -159,6 +159,23 @@ function emptyState(message) {
   return `<div class="empty">${message}<br><small>Use “New task” or “New habit” to add your first item.</small></div>`;
 }
 
+function navIcon(name) {
+  const paths = {
+    dashboard: '<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+    tasks: '<circle cx="12" cy="12" r="9"/><path d="m8 12 2.5 2.5L16 9"/>',
+    focus: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    habits: '<path d="M20 11a8 8 0 0 0-14.7-4L3 10"/><path d="M3 5v5h5"/><path d="M4 13a8 8 0 0 0 14.7 4L21 14"/><path d="M21 19v-5h-5"/>',
+    analytics: '<path d="M4 19V5h16v14Z"/><path d="m7 15 3-3 2 2 5-6"/>',
+    workload: '<rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8M12 17v4"/>',
+    guard: '<path d="M12 3 20 6v5c0 5-3.4 8.5-8 10-4.6-1.5-8-5-8-10V6Z"/><path d="m9 12 2 2 4-4"/>',
+    coach: '<path d="m12 3 1.5 5.5L19 10l-5.5 1.5L12 17l-1.5-5.5L5 10l5.5-1.5Z"/><path d="m19 16 .7 2.3L22 19l-2.3.7L19 22l-.7-2.3L16 19l2.3-.7Z"/>',
+    progress: '<circle cx="12" cy="7" r="4"/><path d="M8 11v10l4-2 4 2V11M10 7h4"/>',
+    calendar: '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+    plugins: '<path d="M9 3v4H7a4 4 0 0 0 0 8h2v6h6v-6h2a4 4 0 0 0 0-8h-2V3Z"/>'
+  };
+  return `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">${paths[name] || paths.dashboard}</svg>`;
+}
+
 function sidebar() {
   const level = Math.floor(state.data.xp / 300) + 1;
   const levelXp = Math.max(0, state.data.xp % 300);
@@ -168,7 +185,7 @@ function sidebar() {
       <span class="workspace-identity"><span class="workspace-logo" aria-hidden="true">▰</span><span>Personal workspace</span></span>
       <span class="workspace-control" aria-hidden="true">↕</span>
     </button>
-    <div class="nav-label">Workspace</div><nav class="nav">${navItems.map(([id, icon, label]) => `<button class="${state.page === id ? 'active' : ''}" data-page="${id}"><i class="nav-icon">${icon}</i><span>${label}</span></button>`).join('')}</nav>
+    <div class="nav-label">Workspace</div><nav class="nav">${navItems.map(([id, icon, label]) => `<button class="${state.page === id ? 'active' : ''}" data-page="${id}"><i class="nav-icon">${navIcon(icon)}</i><span>${label}</span></button>`).join('')}</nav>
     <div class="level-card"><div class="level-top"><span class="level-badge">◉</span><strong>Level ${level}</strong><small>Momentum</small></div><div class="progress-track"><span class="progress-fill" style="width:${Math.round(levelXp / 3)}%"></span></div><small>${levelXp} / 300 XP to level ${level + 1}</small></div>
     <div class="sidebar-bottom"><button data-page="settings">⚙ &nbsp; Settings</button></div>
     <button class="profile" type="button" data-page="profile" title="Open profile"><span class="avatar">${state.profile.photo ? `<img src="${state.profile.photo}" alt="">` : 'U'}</span><span><b>${escapeHtml(state.profile.profileName)}</b><small>Profile</small></span><span style="margin-left:auto">•••</span></button>
